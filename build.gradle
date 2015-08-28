@@ -1,0 +1,13 @@
+apply plugin: "scala"
+apply plugin: "eclipse"
+
+eclipse.classpath.downloadSources = true
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile "org.scala-lang:scala-library:2.11.7"
+}
+

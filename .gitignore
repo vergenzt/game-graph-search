@@ -1,0 +1,10 @@
+.project
+.classpath
+.settings/
+bin/
+
+.gradle/
+build/
+.cache-main
+.cache
+
