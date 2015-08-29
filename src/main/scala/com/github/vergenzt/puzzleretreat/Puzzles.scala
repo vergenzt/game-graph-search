@@ -3,7 +3,7 @@ package com.github.vergenzt.puzzleretreat
 object Puzzles {
 
   object Welcome {
-    lazy val P1 = Puzzle.fromString("""\
+    lazy val P1 = PuzzleBuilder.fromString("""\
       |  1
       |1--
       | --1

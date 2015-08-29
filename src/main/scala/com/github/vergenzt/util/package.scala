@@ -37,4 +37,8 @@ package object util {
     case object E extends Cardinal { override val vec = ( 0, 1) }
     case object W extends Cardinal { override val vec = ( 0,-1) }
   }
+  val Cardinals = {
+    import Cardinal._
+    Seq(N, S, E, W)
+  }
 }
