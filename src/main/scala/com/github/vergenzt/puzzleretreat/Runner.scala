@@ -7,11 +7,11 @@ object Runner {
 
   def main(args: Array[String]): Unit = {
     val level = PuzzleFactory.fromString("""
-        31
-       2--F
-      F---1
-      1---1
-       1F2
+  --
+1----1
+1----2
+2----1
+ 2BB2
     """)
 
     Searcher.bfs(level, neighbors, solved) match {
@@ -20,7 +20,7 @@ object Runner {
           |Found solution!
           |
           |Moves:
-          |${moves.map { case (pos,dir) => s" Move $pos $dir" }.mkString("\n")}
+          |${moves.map { case (pos,dir) => s" Move ${level(pos)} at $pos in direction $dir" }.mkString("\n")}
           |
           |Final state:
           |${PuzzleFactory.toString(solution)}
