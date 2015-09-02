@@ -1,10 +1,11 @@
 package com.github.vergenzt.puzzleretreat
 
 import scala.io.Source
-import com.github.vergenzt.util._
-import java.util.Comparator
+import scala.language.dynamics
 
-object PuzzleBuilder {
+import com.github.vergenzt.util._
+
+object PuzzleFactory {
   val COMMENT_SYMBOL = "%"
   val EOL_WHITESPACE = "\\s+$"
 
@@ -24,7 +25,7 @@ object PuzzleBuilder {
   )
 
   /**
-   * Loads a level file into a sequence of named puzzles.
+   * Loads a level file into a sequence of puzzles.
    *
    * Level files are text files with the following format:
    *
@@ -32,42 +33,47 @@ object PuzzleBuilder {
    *  * Individual levels are sequences of non-blank lines, separated by one or
    *    more blank lines. (Note: Lines with only a comment are considered blank.)
    */
-  def loadLevels(source: Source): Seq[Puzzle] = {
+  def fromLevelSource(source: Source): Seq[Puzzle] = {
+    // this could probably be done better using regexes (i.e. could avoid
+    // splitting lines and then recombining them) but I thought this was
+    // pretty clear
     val levelLines = source
       .getLines()
-      .map(_.split(COMMENT_SYMBOL, 1)(0))
+      .map(_.split(COMMENT_SYMBOL, 2)(0))
       .map(_.replaceAll(EOL_WHITESPACE, ""))
       .mkString("\n")
-      .replaceAll("\n\n+", "\n\n")
-      .split("\n\n")
+      .split("\n\n+")
 
     levelLines.map(fromString)
   }
 
-  def loadLevelsFromResource(name: String) =
-    loadLevels(Source.fromURL(getClass.getResource(name)))
+  def fromLevelResource(name: String) =
+    fromLevelSource(Source.fromURL(getClass.getResource(name)))
 
   def fromString(string: String): Puzzle = {
-    var (rowMin, rowMax, colMin, colMax) = (0, 0, 0, 0)
+    var (rowMin, rowMax) = (Int.MaxValue, Int.MinValue)
+    var (colMin, colMax) = (Int.MaxValue, Int.MinValue)
     val b = Map.newBuilder[Vec, Square]
 
     for {
-      (line, i) <- string.split('\n').iterator.zipWithIndex
+      (line, i) <- string.split('\n').zipWithIndex
       (char, j) <- line.zipWithIndex
+      square <- SQUARE_MAPPING.get(char)
     } {
-      SQUARE_MAPPING.get(char).foreach(b += (i,j) -> _)
+      b += (i,j) -> square
+
+      // update {row,col}{Max,Min} only with squares that were recognized
       rowMin = math.min(rowMin, i)
       colMin = math.min(colMin, j)
       rowMax = math.max(rowMax, i)
       colMax = math.max(colMax, j)
     }
 
-    // translate so (row0, col0) is the origin
-    b.mapResult(state => state.map {
-      case ((i, j), square) => ((i - rowMin, j - colMin), square)
-    })
-
     b.result()
+      // translate so (rowMin, colMin) is the origin
+      .map {
+        case ((i, j), square) => ((i - rowMin, j - colMin), square)
+      }
   }
 
   def toString(puzzle: Puzzle): String = {
@@ -86,7 +92,7 @@ object PuzzleBuilder {
         b += {
           puzzle.get((row,col)) match {
             case Some(square) =>
-              PuzzleBuilder.SQUARE_MAPPING.find(_._2 == square) match {
+              PuzzleFactory.SQUARE_MAPPING.find(_._2 == square) match {
                 case Some((char, _)) => char
                 case None => '?' // no mapping found for square
               }
@@ -97,5 +103,13 @@ object PuzzleBuilder {
       b += '\n'
     }
     b.result()
+  }
+
+  object predef extends Dynamic {
+    private val PACKAGE_PREFIX = "/" + getClass.getPackage.getName.replace('.', '/')
+    private def predefLevelSet(levelName: String) = fromLevelResource(s"$PACKAGE_PREFIX/$levelName.txt")
+
+    // predefined level sets
+    val welcome = predefLevelSet("welcome")
   }
 }

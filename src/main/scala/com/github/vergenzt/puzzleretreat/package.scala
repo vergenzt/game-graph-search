@@ -1,7 +1,9 @@
 package com.github.vergenzt
 
-import com.github.vergenzt.util._
 import scala.collection.mutable
+import scala.util.Try
+
+import com.github.vergenzt.util._
 
 package object puzzleretreat {
 
@@ -38,24 +40,23 @@ package object puzzleretreat {
    * @return the resulting state if the move is valid, None otherwise
    */
   def execute(puzzle: Puzzle, action: Action): Option[Puzzle] = {
-    ???
+    Try {
+      var curPuzzle = mutable.Map(puzzle.toSeq: _*)
+      var (curPos, curDir) = action
+      var curDynamic: Option[DynamicSquare] = Some(puzzle(curPos).asInstanceOf[DynamicSquare])
+
+      curPuzzle(curPos) = Stump
+      curPos += curDir.vec
+
+      while (curDynamic.isDefined) {
+        val curStatic = curPuzzle(curPos).asInstanceOf[StaticSquare]
+
+        curPuzzle(curPos) = curDynamic.get.transform(curStatic)
+        curDynamic = curDynamic.get.transformSelf(curStatic)
+
+        curPos += curDir.vec
+      }
+      curPuzzle.toMap
+    }.toOption
   }
-
-  /**
-   *
-   */
-  def executeStep(puzzle: Puzzle, pos: Vec, dir: Dir, activeSquare: DynamicSquare)
-    : Option[(Puzzle, Option[(Vec, Dir, DynamicSquare)])] = {
-
-    ???
-  }
-
-  type MoveState = (DynamicSquare, Dir)
-  type MoveFn = PartialFunction[
-    (StaticSquare, MoveState),
-    (StaticSquare, Option[MoveState])
-  ]
-
-  def handleMovement: PartialFunction[
-    (StaticSquare,
 }
