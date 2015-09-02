@@ -6,16 +6,13 @@ import com.github.vergenzt.searcher.Searcher
 object Runner {
 
   def main(args: Array[String]): Unit = {
-    implicit def show(puzzle: Puzzle): Unit = println(PuzzleFactory.toString(puzzle))
-
     val level = PuzzleFactory.fromString("""
-        1
-      1--
-       --1
-       1
+        31
+       2--F
+      F---1
+      1---1
+       1F2
     """)
-
-    println(solved(level))
 
     Searcher.bfs(level, neighbors, solved) match {
       case Some((moves, solution)) =>

@@ -21,7 +21,11 @@ object PuzzleFactory {
     '8' -> IceSource(8),
     '9' -> IceSource(9),
     '#' -> Stump,
-    '*' -> Ice
+    '*' -> Ice,
+    'F' -> Fire,
+    'f' -> FireBlock,
+    'B' -> BlockerSource,
+    'b' -> Blocker
   )
 
   /**
