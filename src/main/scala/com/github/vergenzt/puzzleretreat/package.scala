@@ -18,7 +18,7 @@ package object puzzleretreat {
   }
 
   /**
-   * Returns the set of  actions to take.
+   * Returns an iterator of valid actions and corresponding post-action puzzles.
    */
   def neighbors(puzzle: Puzzle): Iterator[(Action, Puzzle)] = {
     for {
