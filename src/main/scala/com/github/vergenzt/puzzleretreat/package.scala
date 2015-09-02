@@ -30,4 +30,15 @@ package object puzzleretreat {
       (action, neighbor)
     }
   }
+
+  /**
+   * Returns the result of taking the action on the given puzzle, if valid.
+   */
+  def neighbor(puzzle: Puzzle, action: Action): Option[Puzzle] = {
+    val (pos, dir) = action
+    puzzle.get(pos) match {
+      case Some(square: DynamicSquare) => square.execute(puzzle, action)
+      case _ => None
+    }
+  }
 }
